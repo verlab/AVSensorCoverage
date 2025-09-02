@@ -32,7 +32,7 @@ table_style = pp.TableStyle(
 
 # callable function that creates report according to passed parameters
 def create_report(
-    sensors, slices, vehicle, grid, path, name, args, n1=3, n2=2, n6=2, n7=2, n8=2
+    sensors, slices_list, vehicle, grids, path, name, args, n1=3, n2=2, n6=2, n7=2, n8=2
 ):
     overall_path = output_folder(path, name)
     path_slices = overall_path / "slices"
@@ -40,6 +40,9 @@ def create_report(
     path_sensorset = overall_path / "sensorset"
     path_png_pictures = overall_path / "png_screenshots"
 
+    slices, slices_zoom = slices_list
+    grid, grid_zoom = grids
+    
     Path.mkdir(path_slices, exist_ok=True)
     Path.mkdir(path_sensors, exist_ok=True)
     Path.mkdir(path_sensorset, exist_ok=True)
@@ -50,6 +53,7 @@ def create_report(
         [" Camera Sensor", "blue"],
         [" LIDAR Sensor", "r"],
         [" Radar Sensor", "37FD12"],
+        [" Sonar Sensor", "gray"],
         [" This Sensor", "orange"],
     ]
 
@@ -69,7 +73,7 @@ def create_report(
         p.add_legend(
             legend_entries, border=True, loc="upper right", face="r", size=(0.22, 0.22)
         )
-        p.show_grid()
+        p.show_grid(font_size=16)
         filename = f"{current_sensor.name}-metrics".replace(" ", "-")
         p.screenshot(path_sensors / f"{filename}.jpg")
         p.screenshot(path_png_pictures / f"{filename}.png")
@@ -84,57 +88,87 @@ def create_report(
 
         p.add_mesh(vehicle, color="565656")
         if i == 1:
-            p.set_position(point=[8.5, 7, 7])
+            # p.set_position(point=[15, 15, 10])
+            p.set_position(point=[2, 2, 1])
         if i == 2:
-            p.set_position(point=[-6.5, -7, 7])
-        p.camera.focal_point = [1.5, 0, 0]
+            # p.set_position(point=[-15, -15, 10])
+            p.set_position(point=[-2, -2, 1])
+        p.camera.focal_point = [0.0, 0, 0]
         p.camera.up = [0, 0, 1]
         p.add_axes()
         p.add_legend(
-            legend_entries[0:3],
+            legend_entries[0:4],
             border=True,
             loc="lower right",
             face="r",
             size=(0.22, 0.22),
         )
-        p.show_grid()
+        p.show_grid(font_size=16)
         filename = f"sensorset{i}".replace(" ", "-")
         p.screenshot(path_sensorset / f"{filename}.jpg")
         p.screenshot(path_png_pictures / f"{filename}.png")
         p.close()
 
     # create a screenshot for every slice and save it
-    for current_slice in slices:
-        legend_entries = [
-            [f" {current_slice.axis} = {current_slice.dist}m", "black"],
-            [f" spacing = {grid.spacing}m", "black"],
-        ]
-        p = pv.Plotter(off_screen=True)
-        p.add_legend(
-            legend_entries,
-            border=True,
-            loc="upper center",
-            face=None,
-            bcolor="w",
-            size=(0.2, 0.15),
-        )
-        p.add_mesh(current_slice.mesh, **args)
-        if current_slice.axis == "z":
-            p.camera_position = "xy"
-        elif current_slice.axis == "y":
-            p.camera_position = "xz"
-        elif current_slice.axis == "x":
-            p.camera_position = "yz"
-        p.show_grid()
-        p.add_axes()
-        filename = f"cross-section_{current_slice.axis}={current_slice.dist}m".replace(" ", "-")
-        p.screenshot(
-            path_slices / f"{filename}.jpg"
-        )
-        p.screenshot(
-            path_png_pictures / f"{filename}.png"
-        )
-        p.close()
+    def save_slice_plot(slices, grid, plot_idx=0, prefix=""):
+        for current_slice in slices:
+            legend_entries = [
+                [f" {current_slice.axis} = {current_slice.dist}m", "black"],
+                [f" spacing = {grid.spacing}m", "black"],
+            ]
+            p = pv.Plotter(off_screen=True)
+            p.add_legend(
+                legend_entries,
+                border=True,
+                loc="upper center",
+                face=None,
+                bcolor="w",
+                size=(0.2, 0.15),
+            )
+            p.add_mesh(current_slice.mesh, **args[plot_idx])
+            if current_slice.axis == "z":
+                p.camera_position = "xy"
+                p.show_grid(font_size=8)
+            elif current_slice.axis == "y":
+                p.camera_position = "xz"
+                if plot_idx == 0:
+                    p.show_bounds(
+                        grid="back",
+                        ticks="both",
+                        minor_ticks=False,
+                        font_size=8,
+                        n_xlabels=5,
+                        n_zlabels=3
+                    )
+                else:
+                    p.show_grid(font_size=8)
+            elif current_slice.axis == "x":
+                p.camera_position = "yz"
+                if plot_idx == 0:
+                    p.show_bounds(
+                        grid="back",
+                        ticks="both",
+                        minor_ticks=False,
+                        font_size=8,
+                        n_xlabels=5,
+                        n_zlabels=3
+                    )
+                else:
+                    p.show_grid(font_size=8)
+
+            p.add_axes()
+            filename = prefix+"cross-section_"+str(current_slice.axis)+"="+str(current_slice.dist)+"m"
+            filename = filename.replace(" ", "-")
+            p.screenshot(
+                path_slices / f"{filename}.jpg"
+            )
+            p.screenshot(
+                path_png_pictures / f"{filename}.png"
+            )
+            p.close()
+
+    save_slice_plot(slices=slices, grid=grid, plot_idx=0, prefix="")
+    save_slice_plot(slices=slices_zoom, grid=grid_zoom, plot_idx=1, prefix="zoomed-")
 
     # save the calculated data from grid as 2 csv files
     np.savetxt(path_sensorset / "metrics.csv", grid.metrics, fmt="%s")
@@ -165,6 +199,21 @@ def create_report(
         slice_row4 = "y_max_right", cur_slice.y_max_right
         slice_row5 = "blind_area", cur_slice.blind_area
         filename = f"cross-section_{cur_slice.axis}={cur_slice.dist}m.csv".replace(" ", "-")
+        with open(path_slices / filename, "w", newline="",) as sensor_metrics:
+            writer = csv.writer(sensor_metrics, delimiter=" ")
+            writer.writerow(slice_row1)
+            writer.writerow(slice_row2)
+            writer.writerow(slice_row3)
+            writer.writerow(slice_row4)
+            writer.writerow(slice_row5)
+
+    for cur_slice in slices_zoom:
+        slice_row1 = "x_max_front", cur_slice.x_max_front
+        slice_row2 = "x_max_rear", cur_slice.x_max_rear
+        slice_row3 = "y_max_left", cur_slice.y_max_left
+        slice_row4 = "y_max_right", cur_slice.y_max_right
+        slice_row5 = "blind_area", cur_slice.blind_area
+        filename = f"zoomed-cross-section_{cur_slice.axis}={cur_slice.dist}m.csv".replace(" ", "-")
         with open(path_slices / filename, "w", newline="",) as sensor_metrics:
             writer = csv.writer(sensor_metrics, delimiter=" ")
             writer.writerow(slice_row1)
@@ -256,18 +305,20 @@ def create_report(
     story.append(pp.PageBreak())
 
     # create lists of csv files for each slice and each sensor in the corresponding directories
-    csv_files_slices = [
-        file for file in path_slices.iterdir() if file.suffix == ".csv"
-    ]
-    csv_files_sensors = [
-        file for file in path_sensors.iterdir() if file.suffix == ".csv"
-    ]
+    csv_files_slices = sorted(
+        (file for file in path_slices.iterdir() if file.suffix == ".csv"),
+        key=lambda f: f.name
+    )
+    csv_files_sensors = sorted(
+        (file for file in path_sensors.iterdir() if file.suffix == ".csv"),
+        key=lambda f: f.name
+    )
 
     # create a page for each of the slices
     for csv_file in csv_files_slices:
         # append page title
         csv_filename = csv_file.stem
-        story.append(pp.Paragraph(csv_filename, styles["Title"]))
+        story.append(pp.Paragraph("Number of sensors covering each cell", styles["Title"]))
         # load and append image
         img_filename = csv_file.stem + ".jpg"
         img_path = path_slices / img_filename

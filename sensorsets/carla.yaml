@@ -1,0 +1,140 @@
+cameras:
+  - name: rgb_front
+    type: Camera
+    position:
+      x: 4.0
+      y: 0.0
+      z: 4.0
+    orientation:
+      pitch: 30
+      yaw: 0
+      roll: 0
+    fov: 90
+    max_dist: 100
+    min_dist: 0.1
+    n_pixels:
+      width: 640
+      height: 480
+
+  - name: rgb_left
+    type: Camera
+    position:
+      x: 4.0
+      y: 1.6
+      z: 2.0
+    orientation:
+      pitch: 0
+      yaw: 145
+      roll: 0
+    fov: 90
+    max_dist: 100
+    min_dist: 0.1
+    n_pixels:
+      width: 640
+      height: 480
+  
+  - name: rgb_right
+    type: Camera
+    position:
+      x: 4.0
+      y: -1.6
+      z: 2.0
+    orientation:
+      pitch: 0
+      yaw: -145
+      roll: 0
+    fov: 90
+    max_dist: 100
+    min_dist: 0.1
+    n_pixels:
+      width: 640
+      height: 480
+
+lidars:
+  - name: lidar_left
+    type: 360 deg Lidar
+    position:
+      x: 4.3
+      y: 1.5
+      z: 1.0
+    orientation:
+      pitch: 0
+      yaw: 0
+      roll: 0
+    fov_h: 360
+    fov_v: 30
+    detection_range: 100
+    min_range: 0.1
+
+  - name: lidar_right
+    type: 360 deg Lidar
+    position:
+      x: 4.3
+      y: -1.5
+      z: 1.0
+    orientation:
+      pitch: 0
+      yaw: 0
+      roll: 0
+    fov_h: 360
+    fov_v: 30
+    detection_range: 100
+    min_range: 0.1
+
+radars:
+  - name: radar_front
+    position:
+      x: 4.3
+      y: 0.0
+      z: 1.0
+    orientation:
+      pitch: 0
+      yaw: 0
+      roll: 0
+    fov_h: 45
+    fov_v: 30
+    detection_range: 200
+    min_range: 0.2
+
+sonars:
+  - name: sonar_center
+    position:
+      x: -4.3
+      y: 0.0
+      z: 1.0
+    orientation:
+      pitch: 0
+      yaw: 180
+      roll: 0
+    fov_h: 10
+    fov_v: 10
+    detection_range: 5
+    min_range: 0.2
+
+  - name: sonar_left
+    position:
+      x: -4.3
+      y: 1.5
+      z: 1.0
+    orientation:
+      pitch: 0
+      yaw: 135
+      roll: 0
+    fov_h: 10
+    fov_v: 10
+    detection_range: 5
+    min_range: 0.2
+  
+  - name: sonar_right
+    position:
+      x: -4.3
+      y: -1.5
+      z: 1.0
+    orientation:
+      pitch: 0
+      yaw: -135
+      roll: 0
+    fov_h: 10
+    fov_v: 10
+    detection_range: 5
+    min_range: 0.2

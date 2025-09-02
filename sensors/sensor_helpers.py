@@ -4,6 +4,7 @@ from easydict import EasyDict as edict
 from .camera import Camera
 from .lidar import Lidar
 from .radar import Radar
+from .sonar import Sonar
 
 
 def load_sensorset(yaml_file):
@@ -77,5 +78,26 @@ def load_sensorset(yaml_file):
             if hasattr(radar_data, 'offset'):
                 obj_radar.translate(**radar_data.offset)
             sensor_list.append(obj_radar)
+    
+    if hasattr(sensor_definition, 'sonars'):
+        for sonar_data in sensor_definition['sonars']:
+            obj_sonar = Sonar(
+                position=[
+                    sonar_data.position.x,
+                    sonar_data.position.y,
+                    sonar_data.position.z
+                ],
+                fov_h=sonar_data.fov_h,
+                fov_v=sonar_data.fov_v,
+                detection_range=sonar_data.detection_range,
+                min_range=sonar_data.min_range,
+                name=sonar_data.name,
+            )
+            obj_sonar.rotate(
+                pitch=sonar_data.orientation.pitch,
+                yaw=sonar_data.orientation.yaw,
+                roll=sonar_data.orientation.roll,
+            )
+            sensor_list.append(obj_sonar)
 
     return sensor_list

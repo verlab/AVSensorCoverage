@@ -28,6 +28,7 @@ def create_plots(grid, sensors, vehicle, path, name, slice_x, slice_y, slice_z):
         [" Camera Sensor", "blue"],
         [" LIDAR Sensor", "r"],
         [" Radar Sensor", "37FD12"],
+        [" Sonar Sensor", "gray"],
     ]
 
     p1 = pv.Plotter()
@@ -62,7 +63,7 @@ def create_plots(grid, sensors, vehicle, path, name, slice_x, slice_y, slice_z):
         startpos = startpos + size + (size // 10)
     p1.add_text("Toggle boxes to turn sensor mesh on/off", position="lower_left", font_size=9)
     p1.add_axes()
-    p1.show_grid()
+    p1.show_grid(font_size=16)
     p1.save_graphic(overall_path / "plot1.pdf")
     p1.show()
 
@@ -78,8 +79,9 @@ def create_plots(grid, sensors, vehicle, path, name, slice_x, slice_y, slice_z):
     p2.add_legend(legend_entries2, border=True, loc="upper right", face="r", bcolor="w")
     p2.add_mesh(vehicle, color="565656")
     p2.add_points(grid.blind_spots, color="r", point_size=8)
+    p2.camera_position = "xz"
     p2.add_axes()
-    p2.show_grid()
+    p2.show_grid(font_size=8)
     p2.save_graphic(overall_path / "plot2.pdf")
     p2.show()
 
@@ -106,7 +108,7 @@ def create_plots(grid, sensors, vehicle, path, name, slice_x, slice_y, slice_z):
     p3.add_mesh(slice_x.mesh, **args1)
     p3.camera_position = "yz"
     p3.add_axes()
-    p3.show_grid()
+    p3.show_grid(font_size=8)
     p3.save_graphic(overall_path / "plot3.pdf")
     p3.show()
 
@@ -133,7 +135,7 @@ def create_plots(grid, sensors, vehicle, path, name, slice_x, slice_y, slice_z):
     p4.add_mesh(slice_y.mesh, **args1)
     p4.camera_position = "xz"
     p4.add_axes()
-    p4.show_grid()
+    p4.show_grid(font_size=8)
     p4.save_graphic(overall_path / "plot4.pdf")
     p4.show()
 
@@ -160,7 +162,7 @@ def create_plots(grid, sensors, vehicle, path, name, slice_x, slice_y, slice_z):
     )
     p5.add_mesh(slice_z.mesh, **args1)
     p5.add_axes()
-    p5.show_grid()
+    p5.show_grid(font_size=8)
     p5.camera_position = "xy"
     p5.subplot(4)
     p5.add_text(
@@ -179,7 +181,7 @@ def create_plots(grid, sensors, vehicle, path, name, slice_x, slice_y, slice_z):
     )
     p5.add_mesh(slice_z.mesh, **args2)
     p5.add_axes()
-    p5.show_grid()
+    p5.show_grid(font_size=8)
     p5.camera_position = "xy"
     p5.subplot(0)
     p5.add_text(
@@ -198,7 +200,7 @@ def create_plots(grid, sensors, vehicle, path, name, slice_x, slice_y, slice_z):
     )
     p5.add_mesh(slice_z.mesh, **args6)
     p5.add_axes()
-    p5.show_grid()
+    p5.show_grid(font_size=8)
     p5.camera_position = "xy"
     p5.subplot(1)
     p5.add_text(
@@ -217,7 +219,7 @@ def create_plots(grid, sensors, vehicle, path, name, slice_x, slice_y, slice_z):
     )
     p5.add_mesh(slice_z.mesh, **args7)
     p5.add_axes()
-    p5.show_grid()
+    p5.show_grid(font_size=8)
     p5.camera_position = "xy"
     p5.subplot(2)
     p5.add_text(
@@ -236,7 +238,7 @@ def create_plots(grid, sensors, vehicle, path, name, slice_x, slice_y, slice_z):
     )
     p5.add_mesh(slice_z.mesh, **args8)
     p5.add_axes()
-    p5.show_grid()
+    p5.show_grid(font_size=8)
     p5.camera_position = "xy"
     p5.save_graphic(overall_path / "plot5.pdf")
     p5.show()

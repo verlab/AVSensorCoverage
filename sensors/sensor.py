@@ -27,15 +27,15 @@ class Sensor:
         # plot position is a parameter used in the automatic screenshot creation for every sensor.
         self.plot_position = np.zeros(3)
         if self.position[0] <= 0:
-            self.plot_position[0] = self.position[0] - 5
+            self.plot_position[0] = self.position[0] - 2
         else:
-            self.plot_position[0] = self.position[0] + 5
+            self.plot_position[0] = self.position[0] + 2
         if self.position[1] <= 0:
-            self.plot_position[1] = self.position[1] - 5
+            self.plot_position[1] = self.position[1] - 2
         else:
-            self.plot_position[1] = self.position[1] + 5
+            self.plot_position[1] = self.position[1] + 2
 
-        self.plot_position[2] = self.position[2] + 5
+        self.plot_position[2] = self.position[2] + 1
 
     # function to rotate the sensor using pyvista functions. if local = false, rotation about global coordinate axis
     def rotate(self, local=True, pitch=0, yaw=0, roll=0):

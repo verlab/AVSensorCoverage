@@ -2,6 +2,7 @@ import logging
 import pickle
 import time
 import pyvista as pv
+import copy
 
 from args import args
 from environment.grid import Grid
@@ -25,6 +26,7 @@ def run(args):
 
     logging.info("Starting Programm")
     sensors = load_sensorset(args.sensor_setup)
+    sensors_zoom = copy.deepcopy(sensors)
 
     if args.gui_mode:
         gui_instance = GUI()
@@ -45,6 +47,16 @@ def run(args):
         center=args.origin,
         dist=args.nearfield_dist,
     )
+    grid_zoom = Grid(
+        dim_x=args.dim_x * 0.2,
+        dim_y=args.dim_y * 0.2,
+        dim_z=args.dim_z,
+        spacing=args.spacing * 0.5,
+        advanced=args.advanced,
+        car=vehicle,
+        center=args.origin,
+        dist=args.nearfield_dist,
+    )
     logging.info("Grid created -> starting single sensor coverage calculation")
 
     ix = 1
@@ -53,11 +65,28 @@ def run(args):
         logging.info(f"Calculating Single Sensor {ix} of {max_ix}")
         sensor.calculate_coverage(grid, vehicle)
         ix += 1
+
+    ix = 1
+    max_ix = len(sensors_zoom)
+    for sensor in sensors_zoom:
+        logging.info(f"Calculating Single Sensor {ix} of {max_ix}")
+        sensor.calculate_coverage(grid_zoom, vehicle)
+        ix += 1
     logging.info("Finished single sensor calculation -> calculating grid coverage")
 
     grid.combine_data(sensors)
     grid.set_metrics_no_condition()
     grid.set_metrics_condition(
+        n1=args.conditions.N1,
+        n2=args.conditions.N2,
+        n6=args.conditions.N6,
+        n7=args.conditions.N7,
+        n8=args.conditions.N8,
+    )
+
+    grid_zoom.combine_data(sensors_zoom)
+    grid_zoom.set_metrics_no_condition()
+    grid_zoom.set_metrics_condition(
         n1=args.conditions.N1,
         n2=args.conditions.N2,
         n6=args.conditions.N6,
@@ -78,17 +107,33 @@ def run(args):
         ]
     )
 
-    plot_args = setup_plot_args(
-        metrics["n_sensor_technologies"], car_value=grid.car_value
+    slices_zoom = [
+        Slice(grid_zoom, 1.5, normal="x"),
+        Slice(grid_zoom, 0, normal="y"),
+        Slice(grid_zoom, 0.01),
+    ]
+    slices_zoom.extend(
+        [
+            Slice(grid_zoom, i * args.slice.distance)
+            for i in range(1, args.slice.number, 1)
+        ]
     )
+
+    slices_list = [slices, slices_zoom]
+
+    plot_args = [setup_plot_args(metrics["n_sensors"], car_value=grid.car_value),
+                 setup_plot_args(metrics["n_sensors"], car_value=grid_zoom.car_value), 
+                ]
+    
+    grids = [grid, grid_zoom]
 
     if args.create_report:
         logging.info("Creating report")
         create_report(
             sensors,
-            slices,
+            slices_list,
             vehicle,
-            grid,
+            grids,
             args.save_path,
             args.folder_name,
             plot_args,
@@ -109,7 +154,7 @@ def run(args):
             args.folder_name,
             slices[0],
             slices[1],
-            slices[2],
+            slices[3],
         )
         logging.info("Report created -> finished")
 

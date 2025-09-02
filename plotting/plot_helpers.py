@@ -55,6 +55,7 @@ SENSOR_COLOR_MAP = {
     "Camera": ("blue", 0.3),
     "Lidar": ("red", 0.4),
     "Radar": ("37FD12", 0.5),
+    "Sonar": ("gray", 0.5),
 }
 
 
