@@ -95,6 +95,7 @@ radars:
     detection_range: 200
     min_range: 0.2
 
+sonars:
   - name: sonar_center
     position:
       x: -0.5
